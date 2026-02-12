@@ -1208,7 +1208,7 @@
             {
                 type: 'standard',
                 question: 'When did I ask you out? 🤔',
-                options: ['15th November 2025', '20th November 2024', '20th November 2025', '1st December 2025'],
+                options: ['15th November 2025', '20th November 2024', '29th November 2025', '1st December 2025'],
                 correctIndex: 2,
                 correctMsg: '🎉 Congrats! You remembered! Next question...',
                 wrongMsg: "It's okay sweetie, surely you get the next one 😅"
@@ -1461,6 +1461,15 @@
                 // Autoplay blocked, user can click toggle
             });
         }
+
+        // Try to play music on page load
+        tryPlayMusic();
+
+        // Also try on first user interaction (browsers block autoplay until interaction)
+        document.addEventListener('click', function startMusicOnce() {
+            if (!musicPlaying) tryPlayMusic();
+            document.removeEventListener('click', startMusicOnce);
+        });
 
         musicToggle.addEventListener('click', () => {
             if (musicPlaying) {
