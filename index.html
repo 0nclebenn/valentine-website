@@ -828,6 +828,148 @@
                 padding: 30px 15px;
             }
         }
+
+        /* ===== ANTI-SCREENSHOT ===== */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        img, video {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            pointer-events: auto;
+        }
+
+        /* ===== DOWNLOAD BUTTON ===== */
+        .download-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: 25px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: scale(1.05);
+            border-color: var(--gold);
+        }
+
+        /* Download Password Overlay */
+        .download-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 550;
+            backdrop-filter: blur(4px);
+        }
+
+        .download-overlay.show {
+            display: flex;
+        }
+
+        .download-box {
+            background: var(--white);
+            color: #333;
+            padding: 35px 25px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .download-box h3 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: var(--deep-red);
+            margin-bottom: 15px;
+        }
+
+        .download-box p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .download-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+            color: #333;
+        }
+
+        .download-box input:focus {
+            border-color: var(--hot-pink);
+        }
+
+        .download-box input.shake {
+            animation: shake 0.5s ease;
+            border-color: #e74c3c;
+        }
+
+        .download-box .btn-download-unlock {
+            background: var(--deep-red);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .download-box .btn-download-unlock:hover {
+            background: var(--hot-pink);
+            transform: scale(1.05);
+        }
+
+        .download-box .btn-download-cancel {
+            background: transparent;
+            color: #999;
+            border: none;
+            padding: 8px 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .download-box .btn-download-cancel:hover {
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -1330,6 +1472,18 @@
             <input type="text" id="password-input" placeholder="Enter password..." autocomplete="off">
             <br>
             <button class="btn-unlock" onclick="checkPassword()">Unlock 💖</button>
+        </div>
+    </div>
+
+    <!-- Download Password Overlay -->
+    <div class="download-overlay" id="download-overlay">
+        <div class="download-box">
+            <h3>🔒 Password Required</h3>
+            <p>Enter password to download this file</p>
+            <input type="text" id="download-password-input" placeholder="Enter password..." autocomplete="off">
+            <br>
+            <button class="btn-download-unlock" onclick="submitDownloadPassword()">Download 📥</button>
+            <button class="btn-download-cancel" onclick="cancelDownload()">Cancel</button>
         </div>
     </div>
 
@@ -1881,6 +2035,92 @@
                 }).catch(() => {});
             }
         });
+        // ===== ANTI-SCREENSHOT =====
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Block keyboard shortcuts for saving, printing, dev tools, screenshots
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S (save), Ctrl+P (print), Ctrl+U (view source)
+            if (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) {
+                e.preventDefault();
+            }
+            // Ctrl+Shift+I (dev tools), Ctrl+Shift+J (console), Ctrl+Shift+C (inspect)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+                e.preventDefault();
+            }
+            // F12 (dev tools)
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            // PrintScreen
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+            }
+        });
+
+        // Disable drag on images/videos
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+                e.preventDefault();
+            }
+        });
+
+        // ===== DOWNLOAD BUTTONS =====
+        let pendingDownloadUrl = '';
+
+        // Add download buttons to all memory cards
+        document.querySelectorAll('#page-gallery .memory-card').forEach(function(card) {
+            const media = card.querySelector('img') || card.querySelector('video');
+            if (media) {
+                const body = card.querySelector('.memory-card-body');
+                const btn = document.createElement('button');
+                btn.className = 'download-btn';
+                btn.textContent = '📥 Download';
+                btn.onclick = function() {
+                    pendingDownloadUrl = media.getAttribute('src');
+                    document.getElementById('download-overlay').classList.add('show');
+                    const input = document.getElementById('download-password-input');
+                    input.value = '';
+                    input.placeholder = 'Enter password...';
+                    input.focus();
+                };
+                body.appendChild(btn);
+            }
+        });
+
+        // Download password input - Enter key
+        document.getElementById('download-password-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') submitDownloadPassword();
+        });
+
+        function submitDownloadPassword() {
+            const input = document.getElementById('download-password-input');
+            const val = input.value.trim();
+            if (val === 'ALA-SOM25') {
+                document.getElementById('download-overlay').classList.remove('show');
+                // Trigger download
+                const a = document.createElement('a');
+                a.href = pendingDownloadUrl;
+                a.download = pendingDownloadUrl.split('/').pop();
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                pendingDownloadUrl = '';
+            } else {
+                input.classList.add('shake');
+                input.value = '';
+                input.placeholder = 'Wrong password, try again...';
+                setTimeout(function() { input.classList.remove('shake'); }, 500);
+            }
+        }
+
+        function cancelDownload() {
+            document.getElementById('download-overlay').classList.remove('show');
+            pendingDownloadUrl = '';
+        }
     </script>
 </body>
 </html>
